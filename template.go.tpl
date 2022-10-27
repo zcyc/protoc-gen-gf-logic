@@ -57,7 +57,11 @@ func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .Han
 
 {{else if eq .Method "DELETE"}}
 func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .HandlerName }}Input) (err error) {
-	// TODO
+    err = dao.{{$.Name}}.Ctx(ctx).Where(dao.{{$.Name}}.Columns().Id, in.Id).Delete()
+    if err != nil {
+        return
+    }
+    return nil
 }
 {{end}}
 
