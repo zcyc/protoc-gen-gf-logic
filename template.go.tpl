@@ -18,19 +18,19 @@ func init() {
 }
 {{range .Methods}}
 {{if eq .Method "GET"}}
-func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .HandlerName }}Input) (out *model.{{ .HandlerName }}Output, err error) {
+func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .FunctionName }}Input) (out *model.{{ .FunctionName }}Output, err error) {
 	var list []*entity.{{$.Name}}
 	err = dao.{{$.Name}}.Ctx(ctx).Where(dao.{{$.Name}}.Columns().Id, in.Ids).Scan(&list)
 	if err != nil {
 		return
 	}
 
-	return &model.{{ .HandlerName }}Output{
+	return &model.{{ .FunctionName }}Output{
 		{{$.Name}}List: list,
 	}, nil
 }
 {{else if eq .Method "POST"}}
-func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .HandlerName }}Input) (err error) {
+func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .FunctionName }}Input) (err error) {
 	{{$.Name}} := &do.{{$.Name}}{
 
 	}
@@ -43,7 +43,7 @@ func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .Han
 }
 
 {{else if eq .Method "PUT"}}
-func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .HandlerName }}Input) (err error) {
+func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .FunctionName }}Input) (err error) {
 	{{$.Name}} := &do.{{$.Name}}{
 
 	}
@@ -56,7 +56,7 @@ func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .Han
 }
 
 {{else if eq .Method "DELETE"}}
-func (s *s{{$.Name}}) {{ .HandlerName }} (ctx context.Context, in *model.{{ .HandlerName }}Input) (err error) {
+func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .FunctionName }}Input) (err error) {
     err = dao.{{$.Name}}.Ctx(ctx).Where(dao.{{$.Name}}.Columns().Id, in.Id).Delete()
     if err != nil {
         return
