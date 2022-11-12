@@ -16,11 +16,16 @@ func New() *s{{$.Name}} {
 func init() {
 	service.Register{{$.Name}}(New())
 }
+
 {{range .Methods}}
 {{if eq .Method "GET"}}
 func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .FunctionName }}Input) (out *model.{{ .FunctionName }}Output, err error) {
 	var list []*entity.{{$.Name}}
-	err = dao.{{$.Name}}.Ctx(ctx).Where(dao.{{$.Name}}.Columns().Id, in.Ids).Scan(&list)
+	d := dao.{{$.Name}}.Ctx(ctx)
+	{{range .Request.Fields }}
+	    d = d.Where(dao.{{$.Name}}.Columns().{{ .Name}}, in.{{ .Name}})
+    {{end}}
+	err = d.Scan(&list)
 	if err != nil {
 		return
 	}
@@ -29,12 +34,15 @@ func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .Fu
 		{{$.Name}}List: list,
 	}, nil
 }
+
 {{else if eq .Method "POST"}}
 func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .FunctionName }}Input) (err error) {
-	{{$.Name}} := &do.{{$.Name}}{
-
+	{{ $.LowerServiceName }} := &do.{{$.Name}}{
+        {{range .Request.Fields }}
+            {{ .Name}}: in.{{ .Name}},
+        {{end}}
 	}
-	err = dao.{{$.Name}}.Ctx(ctx).Data({{$.Name}}).Insert()
+	err = dao.{{$.Name}}.Ctx(ctx).Data({{ $.LowerServiceName }}).Insert()
 	if err != nil {
 		return
 	}
@@ -44,9 +52,11 @@ func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .Fu
 
 {{else if eq .Method "PUT"}}
 func (s *s{{$.Name}}) {{ .FunctionName }} (ctx context.Context, in *model.{{ .FunctionName }}Input) (err error) {
-	{{$.Name}} := &do.{{$.Name}}{
-
-	}
+	{{ $.LowerServiceName }} := &do.{{$.Name}}{
+            {{range .Request.Fields }}
+                {{ .Name}}: in.{{ .Name}},
+            {{end}}
+    	}
 	err = dao.{{$.Name}}.Ctx(ctx).Where(dao.{{$.Name}}.Columns().Id, in.Id).Data({{$.Name}}).Update()
 	if err != nil {
 		return
